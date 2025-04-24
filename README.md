@@ -66,6 +66,25 @@ const filters = useRouteQuery({
 // Type: Ref<{ search: string; status: string[]; date: { from: string; to: string } }>
 ```
 
+### Object Schema with Root Key
+
+```typescript
+const userSettings = useRouteQuery({
+  key: 'settings',  // Optional for object schemas - adds root prefix to all properties
+  schema: {
+    theme: z.string(),
+    notifications: z.boolean()
+  },
+  default: {
+    theme: 'light',
+    notifications: true
+  }
+})
+
+// URL: ?settings.theme=dark&settings.notifications=false
+// Without key: ?theme=dark&notifications=false
+```
+
 ### Nullable Schema
 
 ```typescript
@@ -91,7 +110,7 @@ const sort = useRouteQuery({
 |-----------|------|----------|-------------|
 | `schema` | `z.ZodType \| Record<string, z.ZodType>` | Yes | Zod schema for validation |
 | `default` | `NonNullable<o>` | Yes | Default value (won't appear in URL when active) |
-| `key` | `string` | Required for single values | Root key for single value schemas |
+| `key` | `string` | Required for single values | Root key for single value schemas or optional prefix for object schemas |
 | `nullable` | `boolean` | No | Whether the entire value can be null |
 | `enabled` | `boolean` | No | Enable/disable URL synchronization |
 | `debug` | `boolean` | No | Enable debug logging |
@@ -104,7 +123,18 @@ const sort = useRouteQuery({
 
 1. **Default Values**: Default values are never shown in the URL. A parameter only appears in the URL when its value differs from the default.
 
-2. **Nested Objects**: Deep object structures are automatically flattened using dot notation:
+2. **Root Keys for Object Schemas**: When using a `key` with object schemas, it acts as a prefix for all properties:
+   ```typescript
+   // With key
+   useRouteQuery({ key: 'user', schema: { name: z.string() }, default: { name: '' } })
+   // URL: ?user.name=John
+   
+   // Without key
+   useRouteQuery({ schema: { name: z.string() }, default: { name: '' } })
+   // URL: ?name=John
+   ```
+
+3. **Nested Objects**: Deep object structures are automatically flattened using dot notation:
    ```typescript
    // State
    { filters: { date: { from: '2024-01-01' } } }
@@ -127,6 +157,33 @@ const sort = useRouteQuery({
 5. **Schema Validation**: Don't use Zod's `.default()` function - use the `default` parameter instead.
 
 ## Advanced Examples
+
+### Object Schema with Root Key Prefix
+
+```typescript
+const accountSettings = useRouteQuery({
+  key: 'account',  // All properties will be prefixed with 'account.'
+  schema: {
+    profile: z.object({
+      name: z.string(),
+      email: z.string()
+    }),
+    preferences: z.object({
+      theme: z.enum(['light', 'dark']),
+      notifications: z.boolean()
+    })
+  },
+  default: {
+    profile: { name: '', email: '' },
+    preferences: { theme: 'light', notifications: true }
+  }
+})
+
+// URL structure:
+// ?account.profile.name=John&account.profile.email=john@example.com&account.preferences.theme=dark
+// Without the key, it would be:
+// ?profile.name=John&profile.email=john@example.com&preferences.theme=dark
+```
 
 ### Complex Filtering System
 
