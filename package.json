@@ -1,0 +1,65 @@
+{
+  "name": "vue-route-query",
+  "version": "1.0.0",
+  "description": "Type-safe URL query parameter synchronization for Vue 3 with Zod validation",
+  "keywords": [
+    "vue",
+    "vue3",
+    "vue-router",
+    "query",
+    "url",
+    "zod",
+    "typescript",
+    "validation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/vue-route-query.git"
+  },
+  "license": "MIT",
+  "author": "Your Name",
+  "bugs": {
+    "url": "https://github.com/yourusername/vue-route-query/issues"
+  },
+  "homepage": "https://github.com/chronicstone/vue-route-query#readme",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": ["./dist/*", "./dist/index.d.ts"]
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "unbuild",
+    "dev": "unbuild --stub",
+    "prepublishOnly": "nr build",
+    "release": "bumpp && npm publish",
+    "start": "esno src/index.ts",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0",
+    "vue-router": "^4.0.0",
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "bumpp": "^10.1.0",
+    "typescript": "5.8.3",
+    "unbuild": "^3.5.0",
+    "vitest": "^0.34.0",
+    "vue": "3.5.13",
+    "vue-router": "4.5.0",
+    "zod": "3.24.3"
+  }
+}
