@@ -20,6 +20,43 @@ A powerful Vue 3 composable for type-safe URL query parameter synchronization wi
 - 🔗 **Nested path support**: Deep object structures automatically transformed to dot notation
 - 🔄 **Instance sync**: Multiple instances with the same key stay synchronized
 
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Basic Usage](#basic-usage)
+  - [Single Value](#single-value)
+  - [Object Schema](#object-schema)
+  - [Object Schema with Root Key](#object-schema-with-root-key)
+  - [Nullable Schema](#nullable-schema)
+- [API Reference](#api-reference)
+  - [Parameters](#parameters)
+  - [Returns](#returns)
+- [Core Concepts](#core-concepts)
+  - [Default Values Behavior](#default-values-behavior)
+  - [Root Keys and Prefixing](#root-keys-and-prefixing)
+  - [Nested Objects and Dot Notation](#nested-objects-and-dot-notation)
+  - [Array Serialization](#array-serialization)
+  - [Multiple Instance Synchronization](#multiple-instance-synchronization)
+- [Advanced Usage](#advanced-usage)
+  - [Complex Filtering System](#complex-filtering-system)
+  - [Sortable Table with Nullable State](#sortable-table-with-nullable-state)
+  - [Dynamic Schema with Persistence Control](#dynamic-schema-with-persistence-control)
+  - [Pagination with Type Safety](#pagination-with-type-safety)
+  - [Object Schema with Root Key Prefix](#object-schema-with-root-key-prefix)
+- [Under the Hood](#under-the-hood)
+  - [State Management Lifecycle](#state-management-lifecycle)
+  - [URL Transformation Rules](#url-transformation-rules)
+  - [Global Query Manager](#global-query-manager)
+- [TypeScript Support](#typescript-support)
+- [Common Patterns](#common-patterns)
+- [Performance Considerations](#performance-considerations)
+- [Browser Support](#browser-support)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
+- [Contributing](#contributing)
+
 ## Installation
 
 ```bash
@@ -104,12 +141,14 @@ const sort = useRouteQuery({
 
 ### `useRouteQuery<Schema, Nullable, Output>(config)`
 
+The main composable for managing URL query parameters.
+
 #### Parameters
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `schema` | `z.ZodType \| Record<string, z.ZodType>` | Yes | Zod schema for validation |
-| `default` | `NonNullable<o>` | Yes | Default value (won't appear in URL when active) |
+| `default` | `NonNullable<Output>` | Yes | Default value (won't appear in URL when active) |
 | `key` | `string` | Required for single values | Root key for single value schemas or optional prefix for object schemas |
 | `nullable` | `boolean` | No | Whether the entire value can be null |
 | `enabled` | `boolean` | No | Enable/disable URL synchronization |
@@ -117,7 +156,7 @@ const sort = useRouteQuery({
 
 #### Returns
 
-`Ref<o>` - A reactive reference to the synchronized state
+`Ref<Output>` - A reactive reference to the synchronized state
 
 ### Important Behavior Notes
 
@@ -156,7 +195,7 @@ const sort = useRouteQuery({
 
 5. **Schema Validation**: Don't use Zod's `.default()` function - use the `default` parameter instead.
 
-## Advanced Examples
+## Advanced Usage
 
 ### Object Schema with Root Key Prefix
 
@@ -282,9 +321,9 @@ const pagination = useRouteQuery({
 // ?pageSize=50&pageIndex=3
 ```
 
-## How It Works
+## Under the Hood
 
-### State Management
+### State Management Lifecycle
 
 1. **Initialization**: The composable initializes with either URL values (if present) or default values
 2. **Synchronization**: Changes to the ref automatically update the URL, and URL changes update the ref
