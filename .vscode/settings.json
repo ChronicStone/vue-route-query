@@ -1,5 +1,5 @@
 {
-    "editor.formatOnSave": true,
+  "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll": "always",
     "source.organizeImports": "always"
@@ -19,5 +19,5 @@
   },
   "[jsonc]": {
     "editor.defaultFormatter": "biomejs.biome"
-  },
+  }
 }

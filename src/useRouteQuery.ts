@@ -21,11 +21,9 @@ import {
 export function useRouteQuery<
   Schema extends SchemaInput,
   Nullable extends boolean = false,
-  Output extends InferSchemaType<Schema, Nullable> = InferSchemaType<
-    Schema,
-    Nullable
-  >,
->(params: RouteQueryConfig<Schema, Nullable, Output>): Ref<Output> {
+>(
+  params: RouteQueryConfig<Schema, Nullable>,
+): Ref<InferSchemaType<Schema, Nullable>> {
   const route = useRoute();
   const router = useRouter();
   const defaultValue = params.default;
@@ -65,7 +63,9 @@ export function useRouteQuery<
   // Track previous state for comparison
   let previousValue = parsedInitialQuery;
 
-  const dataRef = ref(parsedInitialQuery) as Ref<Output>;
+  const dataRef = ref(parsedInitialQuery) as Ref<
+    InferSchemaType<Schema, Nullable>
+  >;
 
   if (params.enabled ?? true) {
     watch(
@@ -75,7 +75,7 @@ export function useRouteQuery<
         queryManager.updateCurrentQuery(query);
         const parsed = parseQuery(query);
         if (!isDirty(parsed, dataRef.value)) return;
-        dataRef.value = parsed as Output;
+        dataRef.value = parsed as InferSchemaType<Schema, Nullable>;
       },
       { immediate: true },
     );
@@ -184,7 +184,7 @@ export function useRouteQuery<
     );
   }
 
-  function parseQuery(query: GenericObject): Output {
+  function parseQuery(query: GenericObject): InferSchemaType<Schema, Nullable> {
     const _defaultValue = Object.freeze(
       JSON.parse(JSON.stringify(toRaw(defaultValue))),
     );
@@ -200,27 +200,35 @@ export function useRouteQuery<
       try {
         const parsed =
           value !== undefined ? tryParse(value, params.schema) : _defaultValue;
-        return parsed as Output;
+        return parsed as InferSchemaType<Schema, Nullable>;
       } catch {
-        return _defaultValue as Output;
+        return _defaultValue as InferSchemaType<Schema, Nullable>;
       }
     }
 
     // For object schemas, reconstruct and parse
     const rebuiltQuery = rebuildObjectFromQuery(query, params.schema, rootKey);
-    let parsedData: Output;
+    let parsedData: InferSchemaType<Schema, Nullable>;
 
     try {
-      parsedData = zodSchema.parse(rebuiltQuery) as Output;
+      parsedData = zodSchema.parse(rebuiltQuery) as InferSchemaType<
+        Schema,
+        Nullable
+      >;
     } catch {
-      parsedData = nullable ? (null as Output) : ({} as Output);
+      parsedData = nullable
+        ? (null as InferSchemaType<Schema, Nullable>)
+        : ({} as InferSchemaType<Schema, Nullable>);
     }
 
     if (nullable && parsedData === null) {
-      return null as Output;
+      return null as InferSchemaType<Schema, Nullable>;
     }
 
-    return { ..._defaultValue, ...parsedData } as Output;
+    return { ..._defaultValue, ...parsedData } as InferSchemaType<
+      Schema,
+      Nullable
+    >;
   }
 
   return dataRef;

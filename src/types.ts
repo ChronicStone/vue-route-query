@@ -24,13 +24,11 @@ export type InferSchemaType<
 export type RouteQueryConfig<
   Schema extends SchemaInput,
   Nullable extends boolean = false,
-  Output extends InferSchemaType<Schema, Nullable> = InferSchemaType<
-    Schema,
-    Nullable
-  >,
 > = {
   schema: Schema;
-  default: Output;
+  default: Nullable extends true
+    ? NonNullable<InferSchemaType<Schema, false>> | null
+    : NonNullable<InferSchemaType<Schema, false>>;
   nullable?: Nullable;
   enabled?: boolean;
   debug?: boolean;
