@@ -1,6 +1,6 @@
 {
   "name": "@chronicstone/vue-route-query",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Type-safe URL query parameter synchronization for Vue 3 with Zod validation",
   "keywords": [
     "vue",
