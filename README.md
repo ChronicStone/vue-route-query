@@ -1,5 +1,11 @@
 # @chronicstone/vue-route-query
 
+[![npm version](https://img.shields.io/npm/v/@chronicstone/vue-route-query.svg)](https://www.npmjs.com/package/@chronicstone/vue-route-query)
+[![npm downloads](https://img.shields.io/npm/dm/@chronicstone/vue-route-query.svg)](https://www.npmjs.com/package/@chronicstone/vue-route-query)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@chronicstone/vue-route-query)](https://bundlephobia.com/package/@chronicstone/vue-route-query)
+[![license](https://img.shields.io/npm/l/@chronicstone/vue-route-query.svg)](https://github.com/chronicstone/vue-route-query/blob/main/LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
+
 A powerful Vue 3 composable for type-safe URL query parameter synchronization with Zod validation, automatic state management, and intelligent default handling.
 
 ## Features
@@ -16,28 +22,9 @@ A powerful Vue 3 composable for type-safe URL query parameter synchronization wi
 
 ## Installation
 
-Install with your preferred package manager:
-
-#### npm
 ```bash
 npm install @chronicstone/vue-route-query zod vue-router
 ```
-
-#### yarn
-```bash
-yarn add @chronicstone/vue-route-query zod vue-router
-```
-
-#### pnpm
-```bash
-pnpm add @chronicstone/vue-route-query zod vue-router
-```
-
-#### bun
-```bash
-bun add @chronicstone/vue-route-query zod vue-router
-```
-
 
 ## Basic Usage
 
