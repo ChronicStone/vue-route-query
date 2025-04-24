@@ -24,7 +24,6 @@ A powerful Vue 3 composable for type-safe URL query parameter synchronization wi
 ## Table of Contents
 
 - [Installation](#installation)
-- [Quick Start](#quick-start)
 - [Basic Usage](#basic-usage)
   - [Single Value](#single-value)
   - [Object Schema](#object-schema)
@@ -33,34 +32,44 @@ A powerful Vue 3 composable for type-safe URL query parameter synchronization wi
 - [API Reference](#api-reference)
   - [Parameters](#parameters)
   - [Returns](#returns)
-- [Core Concepts](#core-concepts)
-  - [Default Values Behavior](#default-values-behavior)
-  - [Root Keys and Prefixing](#root-keys-and-prefixing)
-  - [Nested Objects and Dot Notation](#nested-objects-and-dot-notation)
-  - [Array Serialization](#array-serialization)
-  - [Multiple Instance Synchronization](#multiple-instance-synchronization)
+  - [Important Behavior Notes](#important-behavior-notes)
 - [Advanced Usage](#advanced-usage)
+  - [Object Schema with Root Key Prefix](#object-schema-with-root-key-prefix)
   - [Complex Filtering System](#complex-filtering-system)
   - [Sortable Table with Nullable State](#sortable-table-with-nullable-state)
   - [Dynamic Schema with Persistence Control](#dynamic-schema-with-persistence-control)
   - [Pagination with Type Safety](#pagination-with-type-safety)
-  - [Object Schema with Root Key Prefix](#object-schema-with-root-key-prefix)
 - [Under the Hood](#under-the-hood)
   - [State Management Lifecycle](#state-management-lifecycle)
   - [URL Transformation Rules](#url-transformation-rules)
   - [Global Query Manager](#global-query-manager)
-- [TypeScript Support](#typescript-support)
-- [Common Patterns](#common-patterns)
 - [Performance Considerations](#performance-considerations)
 - [Browser Support](#browser-support)
+- [TypeScript Support](#typescript-support)
+- [Common Patterns](#common-patterns)
+  - [Resetting to Defaults](#resetting-to-defaults)
+  - [Conditional Parameters](#conditional-parameters)
+  - [Synchronized Instances](#synchronized-instances)
 - [Troubleshooting](#troubleshooting)
+  - [Common Issues](#common-issues)
+  - [Debug Mode](#debug-mode)
 - [License](#license)
 - [Contributing](#contributing)
 
 ## Installation
 
 ```bash
+# npm
 npm install @chronicstone/vue-route-query zod vue-router
+
+# yarn
+yarn add @chronicstone/vue-route-query zod vue-router
+
+# pnpm
+pnpm add @chronicstone/vue-route-query zod vue-router
+
+# bun
+bun add @chronicstone/vue-route-query zod vue-router
 ```
 
 ## Basic Usage
@@ -158,7 +167,7 @@ The main composable for managing URL query parameters.
 
 `Ref<Output>` - A reactive reference to the synchronized state
 
-### Important Behavior Notes
+#### Important Behavior Notes
 
 1. **Default Values**: Default values are never shown in the URL. A parameter only appears in the URL when its value differs from the default.
 
@@ -182,7 +191,7 @@ The main composable for managing URL query parameters.
    ?filters.date.from=2024-01-01
    ```
 
-3. **Arrays**: Arrays are JSON stringified in the URL:
+4. **Arrays**: Arrays are JSON stringified in the URL:
    ```typescript
    // State
    { tags: ['vue', 'typescript'] }
@@ -191,9 +200,9 @@ The main composable for managing URL query parameters.
    ?tags=["vue","typescript"]
    ```
 
-4. **Multiple Instances**: Multiple `useRouteQuery` instances with the same key will stay synchronized. However, ensure they use compatible schemas to avoid conflicts.
+5. **Multiple Instances**: Multiple `useRouteQuery` instances with the same key will stay synchronized. However, ensure they use compatible schemas to avoid conflicts.
 
-5. **Schema Validation**: Don't use Zod's `.default()` function - use the `default` parameter instead.
+6. **Schema Validation**: Don't use Zod's `.default()` function - use the `default` parameter instead.
 
 ## Advanced Usage
 
