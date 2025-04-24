@@ -42,10 +42,12 @@
     "build": "unbuild",
     "dev": "unbuild --stub",
     "prepublishOnly": "nr build",
-    "release": "bumpp && npm publish",
     "start": "esno src/index.ts",
     "test": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "release": "npm run lint && npm run typecheck && npm run build && bumpp && npm publish"
   },
   "peerDependencies": {
     "vue": "^3.0.0",
