@@ -19,42 +19,47 @@ A powerful Vue 3 composable for type-safe URL query parameter synchronization wi
 - 🎨 **Flexible API**: Support for single values or complex objects
 - 🔗 **Nested path support**: Deep object structures automatically transformed to dot notation
 - 🔄 **Instance sync**: Multiple instances with the same key stay synchronized
-
+- 📜 **History control**: Choose between push and replace modes for router navigation
 
 ## Table of Contents
 
-- [Installation](#installation)
-- [Basic Usage](#basic-usage)
-  - [Single Value](#single-value)
-  - [Object Schema](#object-schema)
-  - [Object Schema with Root Key](#object-schema-with-root-key)
-  - [Nullable Schema](#nullable-schema)
-- [API Reference](#api-reference)
-  - [Parameters](#parameters)
-  - [Returns](#returns)
-  - [Important Behavior Notes](#important-behavior-notes)
-- [Advanced Usage](#advanced-usage)
-  - [Object Schema with Root Key Prefix](#object-schema-with-root-key-prefix)
-  - [Complex Filtering System](#complex-filtering-system)
-  - [Sortable Table with Nullable State](#sortable-table-with-nullable-state)
-  - [Dynamic Schema with Persistence Control](#dynamic-schema-with-persistence-control)
-  - [Pagination with Type Safety](#pagination-with-type-safety)
-- [Under the Hood](#under-the-hood)
-  - [State Management Lifecycle](#state-management-lifecycle)
-  - [URL Transformation Rules](#url-transformation-rules)
-  - [Global Query Manager](#global-query-manager)
-- [Performance Considerations](#performance-considerations)
-- [Browser Support](#browser-support)
-- [TypeScript Support](#typescript-support)
-- [Common Patterns](#common-patterns)
-  - [Resetting to Defaults](#resetting-to-defaults)
-  - [Conditional Parameters](#conditional-parameters)
-  - [Synchronized Instances](#synchronized-instances)
-- [Troubleshooting](#troubleshooting)
-  - [Common Issues](#common-issues)
-  - [Debug Mode](#debug-mode)
-- [License](#license)
-- [Contributing](#contributing)
+- [@chronicstone/vue-route-query](#chronicstonevue-route-query)
+  - [Features](#features)
+  - [Table of Contents](#table-of-contents)
+  - [Installation](#installation)
+  - [Basic Usage](#basic-usage)
+    - [Single Value](#single-value)
+    - [Object Schema](#object-schema)
+    - [Object Schema with Root Key](#object-schema-with-root-key)
+    - [Nullable Schema](#nullable-schema)
+  - [API Reference](#api-reference)
+    - [`useRouteQuery<Schema, Nullable, Output>(config)`](#useroutequeryschema-nullable-outputconfig)
+      - [Parameters](#parameters)
+      - [Returns](#returns)
+      - [Important Behavior Notes](#important-behavior-notes)
+  - [Advanced Usage](#advanced-usage)
+    - [Navigation Mode Control](#navigation-mode-control)
+    - [Object Schema with Root Key Prefix](#object-schema-with-root-key-prefix)
+    - [Complex Filtering System](#complex-filtering-system)
+    - [Sortable Table with Nullable State](#sortable-table-with-nullable-state)
+    - [Dynamic Schema with Persistence Control](#dynamic-schema-with-persistence-control)
+    - [Pagination with Type Safety](#pagination-with-type-safety)
+  - [Under the Hood](#under-the-hood)
+    - [State Management Lifecycle](#state-management-lifecycle)
+    - [URL Transformation Rules](#url-transformation-rules)
+    - [Global Query Manager](#global-query-manager)
+  - [Performance Considerations](#performance-considerations)
+  - [Browser Support](#browser-support)
+  - [TypeScript Support](#typescript-support)
+  - [Common Patterns](#common-patterns)
+    - [Resetting to Defaults](#resetting-to-defaults)
+    - [Conditional Parameters](#conditional-parameters)
+    - [Synchronized Instances](#synchronized-instances)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues](#common-issues)
+    - [Debug Mode](#debug-mode)
+  - [License](#license)
+  - [Contributing](#contributing)
 
 ## Installation
 
@@ -154,14 +159,15 @@ The main composable for managing URL query parameters.
 
 #### Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `schema` | `z.ZodType \| Record<string, z.ZodType>` | Yes | Zod schema for validation |
-| `default` | `NonNullable<Output>` | Yes | Default value (won't appear in URL when active) |
-| `key` | `string` | Required for single values | Root key for single value schemas or optional prefix for object schemas |
-| `nullable` | `boolean` | No | Whether the entire value can be null |
-| `enabled` | `boolean` | No | Enable/disable URL synchronization |
-| `debug` | `boolean` | No | Enable debug logging |
+| Parameter  | Type                                     | Required                   | Description                                                             |
+| ---------- | ---------------------------------------- | -------------------------- | ----------------------------------------------------------------------- |
+| `schema`   | `z.ZodType \| Record<string, z.ZodType>` | Yes                        | Zod schema for validation                                               |
+| `default`  | `NonNullable<Output>`                    | Yes                        | Default value (won't appear in URL when active)                         |
+| `key`      | `string`                                 | Required for single values | Root key for single value schemas or optional prefix for object schemas |
+| `nullable` | `boolean`                                | No                         | Whether the entire value can be null                                    |
+| `enabled`  | `boolean`                                | No                         | Enable/disable URL synchronization                                      |
+| `debug`    | `boolean`                                | No                         | Enable debug logging                                                    |
+| `mode`     | `'push' \| 'replace'`                    | No                         | Navigation mode (default: 'replace')                                    |
 
 #### Returns
 
@@ -172,6 +178,7 @@ The main composable for managing URL query parameters.
 1. **Default Values**: Default values are never shown in the URL. A parameter only appears in the URL when its value differs from the default.
 
 2. **Root Keys for Object Schemas**: When using a `key` with object schemas, it acts as a prefix for all properties:
+
    ```typescript
    // With key
    useRouteQuery({ key: 'user', schema: { name: z.string() }, default: { name: '' } })
@@ -183,6 +190,7 @@ The main composable for managing URL query parameters.
    ```
 
 3. **Nested Objects**: Deep object structures are automatically flattened using dot notation:
+
    ```typescript
    // State
    { filters: { date: { from: '2024-01-01' } } }
@@ -192,6 +200,7 @@ The main composable for managing URL query parameters.
    ```
 
 4. **Arrays**: Arrays are JSON stringified in the URL:
+
    ```typescript
    // State
    { tags: ['vue', 'typescript'] }
@@ -204,7 +213,49 @@ The main composable for managing URL query parameters.
 
 6. **Schema Validation**: Don't use Zod's `.default()` function - use the `default` parameter instead.
 
+7. **Navigation Mode**: The `mode` parameter controls how router navigation occurs:
+   - `'replace'` (default): Updates the URL without creating a new history entry
+   - `'push'`: Creates a new history entry for each update
+
+   When multiple instances update simultaneously, if any instance uses `'push'`, the router will use push mode for that batch of updates.
+
 ## Advanced Usage
+
+### Navigation Mode Control
+
+```typescript
+// Using push mode for filters to enable browser back/forward navigation
+const filters = useRouteQuery({
+  schema: {
+    category: z.string(),
+    priceRange: z.object({
+      min: z.number(),
+      max: z.number()
+    })
+  },
+  default: {
+    category: '',
+    priceRange: { min: 0, max: 1000 }
+  },
+  mode: 'push'  // Each filter change creates a history entry
+})
+
+// Using replace mode for preferences (default)
+const preferences = useRouteQuery({
+  schema: {
+    view: z.enum(['list', 'grid']),
+    density: z.enum(['compact', 'comfortable'])
+  },
+  default: {
+    view: 'list',
+    density: 'comfortable'
+  }
+  // mode: 'replace' is the default
+})
+
+// If both update simultaneously and filters uses 'push',
+// the router will use push for that update
+```
 
 ### Object Schema with Root Key Prefix
 
@@ -323,7 +374,8 @@ const pagination = useRouteQuery({
   default: {
     pageSize: 20,
     pageIndex: 1
-  }
+  },
+  mode: 'push'  // Enable history for pagination
 })
 
 // Only appears in URL when different from default
@@ -342,24 +394,28 @@ const pagination = useRouteQuery({
 ### URL Transformation Rules
 
 1. **Objects**: Nested objects use dot notation
+
    ```typescript
    { user: { settings: { theme: 'dark' } } }
    // Becomes: ?user.settings.theme=dark
    ```
 
 2. **Arrays**: Arrays are JSON stringified
+
    ```typescript
    { tags: ['vue', 'ts'] }
    // Becomes: ?tags=["vue","ts"]
    ```
 
 3. **Booleans**: Represented as string values
+
    ```typescript
    { active: true }
    // Becomes: ?active=true
    ```
 
 4. **Numbers**: Preserved as numeric strings
+
    ```typescript
    { count: 42 }
    // Becomes: ?count=42
@@ -370,10 +426,12 @@ const pagination = useRouteQuery({
 ### Global Query Manager
 
 The library uses a singleton `GlobalQueryManager` that:
+
 - Batches multiple updates to prevent race conditions
 - Processes all updates in the next tick
 - Ensures consistent state across all instances
 - Handles cleanup of removed properties
+- Intelligently combines navigation modes (push if any instance requests push)
 
 ## Performance Considerations
 
@@ -385,6 +443,7 @@ The library uses a singleton `GlobalQueryManager` that:
 ## Browser Support
 
 Works in all modern browsers that support:
+
 - Vue 3
 - URLSearchParams API
 - ES2015+
@@ -458,6 +517,7 @@ const userSettings2 = useRouteQuery({
 2. **Default Values**: Remember that default values never appear in the URL
 3. **Type Errors**: Use proper TypeScript types when working with refs
 4. **Performance**: For large data structures, consider pagination or filtering
+5. **Navigation Conflicts**: When using mixed modes, push takes precedence over replace
 
 ### Debug Mode
 
