@@ -36,3 +36,30 @@ export type RouteQueryConfig<
 } & (Schema extends z.ZodTypeAny
   ? { key: string } // Required for single value schemas
   : { key?: string }); // Optional for object schemas
+
+export type ZodDeepPartial<T extends z.ZodTypeAny> =
+  T extends z.ZodObject<z.ZodRawShape>
+    ? z.ZodObject<
+        {
+          [k in keyof T["shape"]]: z.ZodOptional<ZodDeepPartial<T["shape"][k]>>;
+        },
+        T["_def"]["unknownKeys"],
+        T["_def"]["catchall"]
+      >
+    : T extends z.ZodArray<infer Type, infer Card>
+      ? z.ZodArray<ZodDeepPartial<Type>, Card>
+      : T extends z.ZodOptional<infer Type>
+        ? z.ZodOptional<ZodDeepPartial<Type>>
+        : T extends z.ZodNullable<infer Type>
+          ? z.ZodNullable<ZodDeepPartial<Type>>
+          : T extends z.ZodTuple<infer Items>
+            ? {
+                [k in keyof Items]: Items[k] extends z.ZodTypeAny
+                  ? ZodDeepPartial<Items[k]>
+                  : never;
+              } extends infer PI
+              ? PI extends z.ZodTupleItems
+                ? z.ZodTuple<PI>
+                : never
+              : never
+            : T;

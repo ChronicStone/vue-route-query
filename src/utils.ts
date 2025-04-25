@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { SchemaInput } from "./types";
+import type { SchemaInput, ZodDeepPartial } from "./types";
 
 /**
  * Builds a flat query object from potentially nested data
@@ -207,4 +207,64 @@ export function isDirty(initialState: any, currentState: any): boolean {
     return compareObjects(initialState, currentState);
 
   return true;
+}
+
+export function deepPartialify<T extends z.ZodTypeAny>(
+  schema: T,
+): ZodDeepPartial<T> {
+  return _deepPartialify(schema);
+}
+
+function _deepPartialify(schema: z.ZodTypeAny): any {
+  if (schema instanceof z.ZodObject) {
+    const newShape: any = {};
+
+    for (const key in schema.shape) {
+      const fieldSchema = schema.shape[key];
+      newShape[key] = z.ZodOptional.create(_deepPartialify(fieldSchema));
+    }
+    return new z.ZodObject({
+      ...schema._def,
+      shape: () => newShape,
+    }) as any;
+  } else if (schema instanceof z.ZodArray) {
+    return new z.ZodArray({
+      ...schema._def,
+      type: _deepPartialify(schema.element),
+    });
+  } else if (schema instanceof z.ZodOptional) {
+    return z.ZodOptional.create(_deepPartialify(schema.unwrap()));
+  } else if (schema instanceof z.ZodNullable) {
+    return z.ZodNullable.create(_deepPartialify(schema.unwrap()));
+  } else if (schema instanceof z.ZodTuple) {
+    return z.ZodTuple.create(
+      schema.items.map((item: any) => _deepPartialify(item)),
+    );
+  } else {
+    return schema;
+  }
+}
+
+export function deepMerge<T extends object>(target: T, source: Partial<T>): T {
+  const result = { ...target };
+
+  for (const key in source) {
+    const sourceValue = source[key];
+    const targetValue = target[key];
+
+    if (
+      sourceValue &&
+      typeof sourceValue === "object" &&
+      !Array.isArray(sourceValue) &&
+      targetValue &&
+      typeof targetValue === "object" &&
+      !Array.isArray(targetValue)
+    ) {
+      result[key] = deepMerge(targetValue as any, sourceValue as any);
+    } else if (sourceValue !== undefined) {
+      result[key] = sourceValue as any;
+    }
+  }
+
+  return result;
 }

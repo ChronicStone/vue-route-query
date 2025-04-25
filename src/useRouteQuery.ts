@@ -11,6 +11,8 @@ import type {
 } from "./types";
 import {
   buildQueryObject,
+  deepMerge,
+  deepPartialify,
   isDirty,
   rebuildObjectFromQuery,
   tryParse,
@@ -215,11 +217,14 @@ export function useRouteQuery<
     let parsedData: InferSchemaType<Schema, Nullable>;
 
     try {
-      parsedData = zodSchema.parse(rebuiltQuery) as InferSchemaType<
-        Schema,
-        Nullable
-      >;
-    } catch {
+      parsedData = deepPartialify(zodSchema).parse(
+        rebuiltQuery,
+      ) as InferSchemaType<Schema, Nullable>;
+    } catch (err) {
+      console.error("FAILED TO PARSE", {
+        err,
+        rebuiltQuery,
+      });
       parsedData = nullable
         ? (null as InferSchemaType<Schema, Nullable>)
         : ({} as InferSchemaType<Schema, Nullable>);
@@ -229,7 +234,7 @@ export function useRouteQuery<
       return null as InferSchemaType<Schema, Nullable>;
     }
 
-    return { ..._defaultValue, ...parsedData } as InferSchemaType<
+    return deepMerge(_defaultValue, parsedData) as InferSchemaType<
       Schema,
       Nullable
     >;
