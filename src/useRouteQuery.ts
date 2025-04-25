@@ -1,3 +1,4 @@
+// useRouteQuery.ts
 import { type Ref, ref, toRaw, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { z } from "zod";
@@ -27,11 +28,14 @@ export function useRouteQuery<
   const route = useRoute();
   const router = useRouter();
   const defaultValue = params.default;
+  const mode = params.mode ?? "replace"; // Default to 'replace' if not specified
+
   if (params.debug)
     console.log("useRouteQuery init with:", {
       route: route.query,
       default: defaultValue,
       schema: params.schema,
+      mode: mode,
     });
   const queryManager = GlobalQueryManager.getInstance();
   const { nullable = false, key: rootKey } = params;
@@ -94,9 +98,9 @@ export function useRouteQuery<
             const schemaKeys = Object.keys(params.schema).map((key) =>
               rootKey ? `${rootKey}.${key}` : key,
             );
-            queryManager.removeKeys(schemaKeys);
+            queryManager.removeKeys(schemaKeys, mode);
           } else {
-            queryManager.enqueue(rootKey!, undefined);
+            queryManager.enqueue(rootKey!, undefined, mode);
           }
           return;
         }
@@ -110,9 +114,9 @@ export function useRouteQuery<
             (Array.isArray(newValue) && newValue.length === 0) ||
             newValue === defaultValue
           ) {
-            queryManager.enqueue(rootKey!, undefined);
+            queryManager.enqueue(rootKey!, undefined, mode);
           } else {
-            queryManager.enqueue(rootKey!, newValue);
+            queryManager.enqueue(rootKey!, newValue, mode);
           }
           return;
         }
@@ -149,12 +153,12 @@ export function useRouteQuery<
               // For each removed key, remove all its URL parameters
               for (const removedKey of removedKeys) {
                 const removePath = `${keyPath}.${removedKey}.`;
-                queryManager.removeAllWithPrefix(removePath);
+                queryManager.removeAllWithPrefix(removePath, mode);
               }
 
               // Special handling for empty object
               if (Object.keys(currentValue).length === 0) {
-                queryManager.removeAllWithPrefix(`${keyPath}.`);
+                queryManager.removeAllWithPrefix(`${keyPath}.`, mode);
               }
             }
           });
@@ -174,9 +178,9 @@ export function useRouteQuery<
               typeof value === "object" &&
               !isDirty(value || {}, defaultVal || {}))
           ) {
-            queryManager.enqueue(key, undefined);
+            queryManager.enqueue(key, undefined, mode);
           } else {
-            queryManager.enqueue(key, value);
+            queryManager.enqueue(key, value, mode);
           }
         });
       },

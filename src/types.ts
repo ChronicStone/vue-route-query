@@ -32,6 +32,7 @@ export type RouteQueryConfig<
   nullable?: Nullable;
   enabled?: boolean;
   debug?: boolean;
+  mode?: "push" | "replace";
 } & (Schema extends z.ZodTypeAny
   ? { key: string } // Required for single value schemas
   : { key?: string }); // Optional for object schemas

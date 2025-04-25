@@ -1,3 +1,4 @@
+// queryManager.ts
 import { nextTick } from "vue";
 import type { GenericObject } from "./types";
 
@@ -6,7 +7,8 @@ import type { GenericObject } from "./types";
  */
 export class GlobalQueryManager {
   private static instance: GlobalQueryManager;
-  private updates: Map<string, any> = new Map();
+  private updates: Map<string, { value: any; mode: "push" | "replace" }> =
+    new Map();
   private processingPromise: Promise<void> | null = null;
   private router: any = null;
   private currentQuery: Record<string, any> = {};
@@ -29,8 +31,8 @@ export class GlobalQueryManager {
     }
   }
 
-  enqueue(key: string, value: any) {
-    this.updates.set(key, value);
+  enqueue(key: string, value: any, mode: "push" | "replace" = "replace") {
+    this.updates.set(key, { value, mode });
 
     // If this is a deletion (undefined value) and looks like a parent key,
     // also remove all children
@@ -39,7 +41,7 @@ export class GlobalQueryManager {
       Object.keys(this.currentQuery)
         .filter((k) => k.startsWith(prefix))
         .forEach((childKey) => {
-          this.updates.set(childKey, undefined);
+          this.updates.set(childKey, { value: undefined, mode });
         });
     }
 
@@ -51,7 +53,20 @@ export class GlobalQueryManager {
   private async processUpdates() {
     if (!this.router) return;
 
-    const updates = Object.fromEntries(this.updates);
+    // Determine which mode to use - if any update wants 'push', use push
+    let finalMode: "push" | "replace" = "replace";
+    for (const update of this.updates.values()) {
+      if (update.mode === "push") {
+        finalMode = "push";
+        break;
+      }
+    }
+
+    const updates: Record<string, any> = {};
+    this.updates.forEach((update, key) => {
+      updates[key] = update.value;
+    });
+
     this.updates.clear();
     this.processingPromise = null;
 
@@ -79,13 +94,18 @@ export class GlobalQueryManager {
 
     if (currentQueryStr !== finalQueryStr) {
       this.currentQuery = finalQuery;
-      await this.router.replace({ query: finalQuery });
+      // Use the determined mode for the router update
+      if (finalMode === "push") {
+        await this.router.push({ query: finalQuery });
+      } else {
+        await this.router.replace({ query: finalQuery });
+      }
     }
   }
 
-  removeKeys(keys: string[]) {
+  removeKeys(keys: string[], mode: "push" | "replace" = "replace") {
     keys.forEach((key) => {
-      this.enqueue(key, undefined);
+      this.enqueue(key, undefined, mode);
     });
   }
 
@@ -96,14 +116,14 @@ export class GlobalQueryManager {
     }
   }
 
-  removeAllWithPrefix(prefix: string) {
+  removeAllWithPrefix(prefix: string, mode: "push" | "replace" = "replace") {
     // Find all current keys that start with this prefix
     const keysToRemove = Object.keys(this.currentQuery).filter(
       (key) => key === prefix.slice(0, -1) || key.startsWith(prefix),
     );
 
     keysToRemove.forEach((key) => {
-      this.enqueue(key, undefined);
+      this.enqueue(key, undefined, mode);
     });
   }
 }
