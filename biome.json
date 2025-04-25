@@ -12,7 +12,10 @@
       "dist/**",
       ".git/**",
       ".github/**",
-      "**/*.vue"
+      "**/*.vue",
+      "./playground/.nuxt/**",
+      "./playground/node_modules/**",
+      "./playground/.output/**"
     ]
   },
   "formatter": {
