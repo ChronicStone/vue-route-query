@@ -1,5 +1,11 @@
 # @chronicstone/vue-route-query
 
+[![npm version](https://img.shields.io/npm/v/@chronicstone/vue-route-query.svg)](https://www.npmjs.com/package/@chronicstone/vue-route-query)
+[![npm downloads](https://img.shields.io/npm/dm/@chronicstone/vue-route-query.svg)](https://www.npmjs.com/package/@chronicstone/vue-route-query)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@chronicstone/vue-route-query)](https://bundlephobia.com/package/@chronicstone/vue-route-query)
+[![license](https://img.shields.io/npm/l/@chronicstone/vue-route-query.svg)](https://github.com/chronicstone/vue-route-query/blob/main/LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
+
 A powerful Vue 3 composable for type-safe URL query parameter synchronization with Zod validation, automatic state management, and intelligent default handling.
 
 ## Features
@@ -14,30 +20,57 @@ A powerful Vue 3 composable for type-safe URL query parameter synchronization wi
 - 🔗 **Nested path support**: Deep object structures automatically transformed to dot notation
 - 🔄 **Instance sync**: Multiple instances with the same key stay synchronized
 
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Basic Usage](#basic-usage)
+  - [Single Value](#single-value)
+  - [Object Schema](#object-schema)
+  - [Object Schema with Root Key](#object-schema-with-root-key)
+  - [Nullable Schema](#nullable-schema)
+- [API Reference](#api-reference)
+  - [Parameters](#parameters)
+  - [Returns](#returns)
+  - [Important Behavior Notes](#important-behavior-notes)
+- [Advanced Usage](#advanced-usage)
+  - [Object Schema with Root Key Prefix](#object-schema-with-root-key-prefix)
+  - [Complex Filtering System](#complex-filtering-system)
+  - [Sortable Table with Nullable State](#sortable-table-with-nullable-state)
+  - [Dynamic Schema with Persistence Control](#dynamic-schema-with-persistence-control)
+  - [Pagination with Type Safety](#pagination-with-type-safety)
+- [Under the Hood](#under-the-hood)
+  - [State Management Lifecycle](#state-management-lifecycle)
+  - [URL Transformation Rules](#url-transformation-rules)
+  - [Global Query Manager](#global-query-manager)
+- [Performance Considerations](#performance-considerations)
+- [Browser Support](#browser-support)
+- [TypeScript Support](#typescript-support)
+- [Common Patterns](#common-patterns)
+  - [Resetting to Defaults](#resetting-to-defaults)
+  - [Conditional Parameters](#conditional-parameters)
+  - [Synchronized Instances](#synchronized-instances)
+- [Troubleshooting](#troubleshooting)
+  - [Common Issues](#common-issues)
+  - [Debug Mode](#debug-mode)
+- [License](#license)
+- [Contributing](#contributing)
+
 ## Installation
 
-Install with your preferred package manager:
-
-#### npm
 ```bash
+# npm
 npm install @chronicstone/vue-route-query zod vue-router
-```
 
-#### yarn
-```bash
+# yarn
 yarn add @chronicstone/vue-route-query zod vue-router
-```
 
-#### pnpm
-```bash
+# pnpm
 pnpm add @chronicstone/vue-route-query zod vue-router
-```
 
-#### bun
-```bash
+# bun
 bun add @chronicstone/vue-route-query zod vue-router
 ```
-
 
 ## Basic Usage
 
@@ -79,6 +112,25 @@ const filters = useRouteQuery({
 // Type: Ref<{ search: string; status: string[]; date: { from: string; to: string } }>
 ```
 
+### Object Schema with Root Key
+
+```typescript
+const userSettings = useRouteQuery({
+  key: 'settings',  // Optional for object schemas - adds root prefix to all properties
+  schema: {
+    theme: z.string(),
+    notifications: z.boolean()
+  },
+  default: {
+    theme: 'light',
+    notifications: true
+  }
+})
+
+// URL: ?settings.theme=dark&settings.notifications=false
+// Without key: ?theme=dark&notifications=false
+```
+
 ### Nullable Schema
 
 ```typescript
@@ -98,26 +150,39 @@ const sort = useRouteQuery({
 
 ### `useRouteQuery<Schema, Nullable, Output>(config)`
 
+The main composable for managing URL query parameters.
+
 #### Parameters
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `schema` | `z.ZodType \| Record<string, z.ZodType>` | Yes | Zod schema for validation |
-| `default` | `NonNullable<o>` | Yes | Default value (won't appear in URL when active) |
-| `key` | `string` | Required for single values | Root key for single value schemas |
+| `default` | `NonNullable<Output>` | Yes | Default value (won't appear in URL when active) |
+| `key` | `string` | Required for single values | Root key for single value schemas or optional prefix for object schemas |
 | `nullable` | `boolean` | No | Whether the entire value can be null |
 | `enabled` | `boolean` | No | Enable/disable URL synchronization |
 | `debug` | `boolean` | No | Enable debug logging |
 
 #### Returns
 
-`Ref<o>` - A reactive reference to the synchronized state
+`Ref<Output>` - A reactive reference to the synchronized state
 
-### Important Behavior Notes
+#### Important Behavior Notes
 
 1. **Default Values**: Default values are never shown in the URL. A parameter only appears in the URL when its value differs from the default.
 
-2. **Nested Objects**: Deep object structures are automatically flattened using dot notation:
+2. **Root Keys for Object Schemas**: When using a `key` with object schemas, it acts as a prefix for all properties:
+   ```typescript
+   // With key
+   useRouteQuery({ key: 'user', schema: { name: z.string() }, default: { name: '' } })
+   // URL: ?user.name=John
+   
+   // Without key
+   useRouteQuery({ schema: { name: z.string() }, default: { name: '' } })
+   // URL: ?name=John
+   ```
+
+3. **Nested Objects**: Deep object structures are automatically flattened using dot notation:
    ```typescript
    // State
    { filters: { date: { from: '2024-01-01' } } }
@@ -126,7 +191,7 @@ const sort = useRouteQuery({
    ?filters.date.from=2024-01-01
    ```
 
-3. **Arrays**: Arrays are JSON stringified in the URL:
+4. **Arrays**: Arrays are JSON stringified in the URL:
    ```typescript
    // State
    { tags: ['vue', 'typescript'] }
@@ -135,11 +200,38 @@ const sort = useRouteQuery({
    ?tags=["vue","typescript"]
    ```
 
-4. **Multiple Instances**: Multiple `useRouteQuery` instances with the same key will stay synchronized. However, ensure they use compatible schemas to avoid conflicts.
+5. **Multiple Instances**: Multiple `useRouteQuery` instances with the same key will stay synchronized. However, ensure they use compatible schemas to avoid conflicts.
 
-5. **Schema Validation**: Don't use Zod's `.default()` function - use the `default` parameter instead.
+6. **Schema Validation**: Don't use Zod's `.default()` function - use the `default` parameter instead.
 
-## Advanced Examples
+## Advanced Usage
+
+### Object Schema with Root Key Prefix
+
+```typescript
+const accountSettings = useRouteQuery({
+  key: 'account',  // All properties will be prefixed with 'account.'
+  schema: {
+    profile: z.object({
+      name: z.string(),
+      email: z.string()
+    }),
+    preferences: z.object({
+      theme: z.enum(['light', 'dark']),
+      notifications: z.boolean()
+    })
+  },
+  default: {
+    profile: { name: '', email: '' },
+    preferences: { theme: 'light', notifications: true }
+  }
+})
+
+// URL structure:
+// ?account.profile.name=John&account.profile.email=john@example.com&account.preferences.theme=dark
+// Without the key, it would be:
+// ?profile.name=John&profile.email=john@example.com&preferences.theme=dark
+```
 
 ### Complex Filtering System
 
@@ -238,9 +330,9 @@ const pagination = useRouteQuery({
 // ?pageSize=50&pageIndex=3
 ```
 
-## How It Works
+## Under the Hood
 
-### State Management
+### State Management Lifecycle
 
 1. **Initialization**: The composable initializes with either URL values (if present) or default values
 2. **Synchronization**: Changes to the ref automatically update the URL, and URL changes update the ref
