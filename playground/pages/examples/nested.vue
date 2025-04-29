@@ -37,13 +37,13 @@
 
                     <div class="space-y-4">
                         <UFormField label="Theme">
-                            <USelectMenu v-model="userProfile.preferences.theme" :options="themeOptions"
-                                value-attribute="value" option-attribute="label" />
+                            <USelectMenu v-model="userProfile.preferences.theme" :items="themeOptions"
+                                value-key="value" />
                         </UFormField>
 
                         <UFormField label="Language">
-                            <USelectMenu v-model="userProfile.preferences.language" :options="languageOptions"
-                                value-attribute="value" option-attribute="label" />
+                            <USelectMenu v-model="userProfile.preferences.language" :items="languageOptions"
+                                value-key="value" />
                         </UFormField>
 
                         <UFormField label="Notifications">
@@ -114,16 +114,16 @@ const userProfile = useRouteQuery({
             email: z.string(),
             phone: z.string()
         }),
-        preferences: z.record(z.string(), z.any())
-        // z.object({
-        //     theme: z.enum(['light', 'dark', 'system']),
-        //     language: z.string(),
-        //     notifications: z.object({
-        //         email: z.boolean(),
-        //         push: z.boolean(),
-        //         sms: z.boolean()
-        //     })
-        // })
+        preferences:
+            z.object({
+                theme: z.enum(['light', 'dark', 'system']),
+                language: z.string(),
+                notifications: z.object({
+                    email: z.boolean(),
+                    push: z.boolean(),
+                    sms: z.boolean()
+                })
+            })
     },
     default: {
         personal: {

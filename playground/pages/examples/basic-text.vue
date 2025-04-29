@@ -11,7 +11,7 @@ const searchQuery = useRouteQuery({
 const username = useRouteQuery({
     key: 'user',
     schema: z.string(),
-    default: ''
+    default: '',
 })
 
 const resetToDefaults = () => {

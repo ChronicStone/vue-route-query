@@ -1,5 +1,5 @@
 // useRouteQuery.ts
-import { type Ref, ref, toRaw, watch } from "vue";
+import { type Ref, onUnmounted, ref, toRaw, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { z } from "zod";
 import { GlobalQueryManager } from "./queryManager";
@@ -30,7 +30,9 @@ export function useRouteQuery<
   const route = useRoute();
   const router = useRouter();
   const defaultValue = params.default;
-  const mode = params.mode ?? "replace"; // Default to 'replace' if not specified
+  const mode = params.mode ?? "replace";
+  const instanceId = Symbol();
+  // Default to 'replace' if not specified
 
   if (params.debug)
     console.log("useRouteQuery init with:", {
@@ -40,14 +42,20 @@ export function useRouteQuery<
       mode: mode,
     });
   const queryManager = GlobalQueryManager.getInstance();
-  const { nullable = false, key: rootKey } = params;
 
-  // Validate that single value schemas have a key
+  const { nullable = false, key: rootKey } = params;
   if (params.schema instanceof z.ZodType && !rootKey) {
     throw new Error("key is required for single value schemas");
   }
 
+  const instanceKeys = params.schema instanceof z.ZodType || params.key
+  ? [params.key!] 
+  : Object.keys(params.schema)
+
   queryManager.init(router, route.query);
+  queryManager.registerInstance(instanceId, instanceKeys);
+
+  onUnmounted(() => queryManager.unregisterInstance(instanceId));
 
   const baseSchema =
     params.schema instanceof z.ZodType

@@ -7,12 +7,12 @@ import type { GenericObject } from "./types";
  */
 export class GlobalQueryManager {
   private static instance: GlobalQueryManager;
-  private updates: Map<string, { value: any; mode: "push" | "replace" }> =
-    new Map();
+  private updates: Map<string, { value: any; mode: "push" | "replace" }> = new Map();
   private processingPromise: Promise<void> | null = null;
   private router: any = null;
   private currentQuery: Record<string, any> = {};
   private initialQueryHandled = false;
+  private instances = new Map<symbol, string[]>();
 
   private constructor() {}
 
@@ -30,6 +30,27 @@ export class GlobalQueryManager {
       this.initialQueryHandled = true;
     }
   }
+
+  registerInstance(instanceId: symbol, schemaKeys: string[]) {
+    this.instances.set(instanceId, schemaKeys);
+  }
+
+  unregisterInstance(instanceId: symbol) {
+    const keys = this.instances.get(instanceId);
+    if(!keys) return;
+
+    this.instances.delete(instanceId);
+    for (const key of keys) {
+      if(!this.isKeyOwnedByInstance(key)) delete this.currentQuery[key];
+    }
+  }
+
+  isKeyOwnedByInstance(key: string) {
+    for (const [instanceId, keys] of this.instances.entries()) 
+      if (keys.includes(key))  return true;
+    return false;
+  }
+
 
   enqueue(key: string, value: any, mode: "push" | "replace" = "replace") {
     this.updates.set(key, { value, mode });
@@ -125,5 +146,10 @@ export class GlobalQueryManager {
     keysToRemove.forEach((key) => {
       this.enqueue(key, undefined, mode);
     });
+  }
+
+  static cleanup() {
+    // @ts-expect-error
+    GlobalQueryManager.instance = null;
   }
 }
