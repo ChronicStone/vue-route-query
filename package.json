@@ -40,7 +40,7 @@
   "files": ["dist"],
   "scripts": {
     "build": "unbuild",
-    "dev": "unbuild --stub",
+    "dev:playground": "cd playground && bun dev",
     "start": "esno src/index.ts",
     "test": "vitest",
     "typecheck": "tsc --noEmit",

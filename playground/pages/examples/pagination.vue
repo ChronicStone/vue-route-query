@@ -1,13 +1,55 @@
+<script setup lang="ts">
+import { z } from 'zod'
+import { useRouteQuery } from "../../../src"
+
+const modeOptions = [
+    { label: 'Replace (Default)', value: 'replace' },
+    { label: 'Push (History)', value: 'push' }
+]
+
+const pageSizeOptions = [10, 20, 50, 100]
+
+const selectedMode = ref<'push' | 'replace'>('push')
+
+const pagination = useRouteQuery({
+    schema: {
+        page: z.number(),
+        pageSize: z.number()
+    },
+    default: {
+        page: 1,
+        pageSize: 20
+    },
+    mode: selectedMode.value
+})
+
+
+const resetToDefaults = () => {
+    pagination.value = {
+        page: 1,
+        pageSize: 20
+    }
+}
+
+const currentUrl = computed(() => {
+    return window.location.href
+})
+</script>
+
+
 <template>
     <div class="space-y-8">
         <UCard>
             <template #header>
-                <h2 class="text-xl font-semibold">Pagination & Mode Example</h2>
+                <div class="w-full flex items-center justify-between gap-4">
+                    <h2 class="text-xl font-semibold">Pagination & Mode Example</h2>
+                    <GithubLink />
+                </div>
             </template>
 
             <div class="space-y-6">
                 <UFormField label="Navigation Mode">
-                    <URadioGroup v-model="selectedMode" :items="modeOptions" value-key="value" />
+                    <URadioGroup v-model="selectedMode" :items="modeOptions" value-key="value" disabled />
                 </UFormField>
 
                 <UAlert :title="`Current mode: ${selectedMode}`" :description="selectedMode === 'push'
@@ -64,44 +106,3 @@
         </UCard>
     </div>
 </template>
-
-<script setup lang="ts">
-import { z } from 'zod'
-import { useRouteQuery } from "../../../src"
-
-const modeOptions = [
-    { label: 'Replace (Default)', value: 'replace' },
-    { label: 'Push (History)', value: 'push' }
-]
-
-const pageSizeOptions = [10, 20, 50, 100]
-
-const selectedMode = ref<'push' | 'replace'>('push')
-
-const pagination = useRouteQuery({
-    schema: {
-        page: z.number(),
-        pageSize: z.number()
-    },
-    default: {
-        page: 1,
-        pageSize: 20
-    },
-    mode: selectedMode.value
-})
-
-
-const resetToDefaults = () => {
-    pagination.value = {
-        page: 1,
-        pageSize: 20
-    }
-}
-
-const currentUrl = computed(() => {
-    if (process.client) {
-        return window.location.href
-    }
-    return ''
-})
-</script>

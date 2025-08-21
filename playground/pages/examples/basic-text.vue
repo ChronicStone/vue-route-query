@@ -25,10 +25,7 @@ const setCustomValues = () => {
 }
 
 const currentUrl = computed(() => {
-    if (process.client) {
-        return window.location.href
-    }
-    return ''
+    return window.location.href
 })
 </script>
 
@@ -36,7 +33,10 @@ const currentUrl = computed(() => {
     <div class="space-y-8">
         <UCard>
             <template #header>
-                <h2 class="text-xl font-semibold">Basic Text Input Example</h2>
+                <div class="w-full flex items-center justify-between gap-4">
+                    <h2 class="text-xl font-semibold">Basic Text Input Example</h2>
+                    <GithubLink />
+                </div>
             </template>
 
             <div class="space-y-6">

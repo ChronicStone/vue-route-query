@@ -1,8 +1,70 @@
+<script setup lang="ts">
+import { z } from 'zod'
+import { useRouteQuery } from "../../../src"
+
+const themeOptions = [
+    { label: 'Light', value: 'light' },
+    { label: 'Dark', value: 'dark' },
+    { label: 'System', value: 'system' }
+]
+
+const tagOptions = [
+    { label: 'Vue', value: 'vue' },
+    { label: 'TypeScript', value: 'typescript' },
+    { label: 'Nuxt', value: 'nuxt' },
+    { label: 'TailwindCSS', value: 'tailwind' },
+    { label: 'JavaScript', value: 'javascript' }
+]
+
+const viewModeOptions = [
+    { label: 'Grid', value: 'grid' },
+    { label: 'List', value: 'list' },
+    { label: 'Compact', value: 'compact' }
+]
+
+const theme = useRouteQuery({
+    key: 'theme',
+    schema: z.enum(['light', 'dark', 'system']),
+    default: 'system'
+})
+
+const tags = useRouteQuery({
+    key: 'tags',
+    schema: z.array(z.string()),
+    default: []
+})
+
+const viewMode = useRouteQuery({
+    key: 'view',
+    schema: z.enum(['grid', 'list', 'compact']),
+    default: 'list'
+})
+
+const resetToDefaults = () => {
+    theme.value = 'system'
+    tags.value = []
+    viewMode.value = 'list'
+}
+
+const setCustomValues = () => {
+    theme.value = 'dark'
+    tags.value = ['vue', 'typescript', 'nuxt']
+    viewMode.value = 'grid'
+}
+
+const currentUrl = computed(() => {
+    return window.location.href
+})
+</script>
+
 <template>
     <div class="space-y-8">
         <UCard>
             <template #header>
-                <h2 class="text-xl font-semibold">Select & Multi-Select Example</h2>
+                <div class="w-full flex items-center justify-between gap-4">
+                    <h2 class="text-xl font-semibold">Select & Multi-Select Example</h2>
+                    <GithubLink />
+                </div>
             </template>
 
             <div class="space-y-6">
@@ -66,65 +128,3 @@
         </UCard>
     </div>
 </template>
-
-<script setup lang="ts">
-import { z } from 'zod'
-import { useRouteQuery } from "../../../src"
-
-const themeOptions = [
-    { label: 'Light', value: 'light' },
-    { label: 'Dark', value: 'dark' },
-    { label: 'System', value: 'system' }
-]
-
-const tagOptions = [
-    { label: 'Vue', value: 'vue' },
-    { label: 'TypeScript', value: 'typescript' },
-    { label: 'Nuxt', value: 'nuxt' },
-    { label: 'TailwindCSS', value: 'tailwind' },
-    { label: 'JavaScript', value: 'javascript' }
-]
-
-const viewModeOptions = [
-    { label: 'Grid', value: 'grid' },
-    { label: 'List', value: 'list' },
-    { label: 'Compact', value: 'compact' }
-]
-
-const theme = useRouteQuery({
-    key: 'theme',
-    schema: z.enum(['light', 'dark', 'system']),
-    default: 'system'
-})
-
-const tags = useRouteQuery({
-    key: 'tags',
-    schema: z.array(z.string()),
-    default: []
-})
-
-const viewMode = useRouteQuery({
-    key: 'view',
-    schema: z.enum(['grid', 'list', 'compact']),
-    default: 'list'
-})
-
-const resetToDefaults = () => {
-    theme.value = 'system'
-    tags.value = []
-    viewMode.value = 'list'
-}
-
-const setCustomValues = () => {
-    theme.value = 'dark'
-    tags.value = ['vue', 'typescript', 'nuxt']
-    viewMode.value = 'grid'
-}
-
-const currentUrl = computed(() => {
-    if (process.client) {
-        return window.location.href
-    }
-    return ''
-})
-</script>

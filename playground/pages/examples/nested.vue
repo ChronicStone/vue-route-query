@@ -1,91 +1,3 @@
-<template>
-    <div class="space-y-8">
-        <UCard>
-            <template #header>
-                <h2 class="text-xl font-semibold">Nested Objects Example</h2>
-            </template>
-
-            <div class="space-y-6">
-                <UCard>
-                    <template #header>
-                        <h3 class="font-medium">User Profile</h3>
-                    </template>
-
-                    <div class="space-y-4">
-                        <UFormField label="First Name">
-                            <UInput v-model="userProfile.personal.firstName" />
-                        </UFormField>
-
-                        <UFormField label="Last Name">
-                            <UInput v-model="userProfile.personal.lastName" />
-                        </UFormField>
-
-                        <UFormField label="Email">
-                            <UInput v-model="userProfile.contact.email" type="email" />
-                        </UFormField>
-
-                        <UFormField label="Phone">
-                            <UInput v-model="userProfile.contact.phone" />
-                        </UFormField>
-                    </div>
-                </UCard>
-
-                <UCard>
-                    <template #header>
-                        <h3 class="font-medium">Preferences</h3>
-                    </template>
-
-                    <div class="space-y-4">
-                        <UFormField label="Theme">
-                            <USelectMenu v-model="userProfile.preferences.theme" :items="themeOptions"
-                                value-key="value" />
-                        </UFormField>
-
-                        <UFormField label="Language">
-                            <USelectMenu v-model="userProfile.preferences.language" :items="languageOptions"
-                                value-key="value" />
-                        </UFormField>
-
-                        <UFormField label="Notifications">
-                            <div class="space-y-2">
-                                <UCheckbox v-model="userProfile.preferences.notifications.email"
-                                    label="Email Notifications" />
-                                <UCheckbox v-model="userProfile.preferences.notifications.push"
-                                    label="Push Notifications" />
-                                <UCheckbox v-model="userProfile.preferences.notifications.sms"
-                                    label="SMS Notifications" />
-                            </div>
-                        </UFormField>
-                    </div>
-                </UCard>
-
-                <USeparator label="Current State" />
-
-                <pre
-                    class="text-sm bg-gray-50 p-4 rounded-lg overflow-auto">{{ JSON.stringify(userProfile, null, 2) }}</pre>
-
-                <USeparator />
-
-                <div class="flex gap-4">
-                    <UButton @click="resetToDefaults" variant="soft">
-                        Reset to Defaults
-                    </UButton>
-                    <UButton @click="setExampleProfile" color="primary">
-                        Set Example Profile
-                    </UButton>
-                </div>
-            </div>
-        </UCard>
-
-        <UCard>
-            <template #header>
-                <h3 class="font-semibold">Current URL</h3>
-            </template>
-            <code class="text-sm">{{ $router.currentRoute.value.fullPath }}</code>
-        </UCard>
-    </div>
-</template>
-
 <script setup lang="ts">
 import { z } from 'zod'
 import { useRouteQuery } from "../../../src"
@@ -191,9 +103,97 @@ const setExampleProfile = () => {
 }
 
 const currentUrl = computed(() => {
-    if (process.client) {
-        return window.location.href
-    }
-    return ''
+    return window.location.href
 })
 </script>
+
+<template>
+    <div class="space-y-8">
+        <UCard>
+            <template #header>
+                <div class="w-full flex items-center justify-between gap-4">
+                    <h2 class="text-xl font-semibold">Nested Objects Example</h2>
+                    <GithubLink />
+                </div>
+            </template>
+
+            <div class="space-y-6">
+                <UCard>
+                    <template #header>
+                        <h3 class="font-medium">User Profile</h3>
+                    </template>
+
+                    <div class="space-y-4">
+                        <UFormField label="First Name">
+                            <UInput v-model="userProfile.personal.firstName" />
+                        </UFormField>
+
+                        <UFormField label="Last Name">
+                            <UInput v-model="userProfile.personal.lastName" />
+                        </UFormField>
+
+                        <UFormField label="Email">
+                            <UInput v-model="userProfile.contact.email" type="email" />
+                        </UFormField>
+
+                        <UFormField label="Phone">
+                            <UInput v-model="userProfile.contact.phone" />
+                        </UFormField>
+                    </div>
+                </UCard>
+
+                <UCard>
+                    <template #header>
+                        <h3 class="font-medium">Preferences</h3>
+                    </template>
+
+                    <div class="space-y-4">
+                        <UFormField label="Theme">
+                            <USelectMenu v-model="userProfile.preferences.theme" :items="themeOptions"
+                                value-key="value" />
+                        </UFormField>
+
+                        <UFormField label="Language">
+                            <USelectMenu v-model="userProfile.preferences.language" :items="languageOptions"
+                                value-key="value" />
+                        </UFormField>
+
+                        <UFormField label="Notifications">
+                            <div class="space-y-2">
+                                <UCheckbox v-model="userProfile.preferences.notifications.email"
+                                    label="Email Notifications" />
+                                <UCheckbox v-model="userProfile.preferences.notifications.push"
+                                    label="Push Notifications" />
+                                <UCheckbox v-model="userProfile.preferences.notifications.sms"
+                                    label="SMS Notifications" />
+                            </div>
+                        </UFormField>
+                    </div>
+                </UCard>
+
+                <USeparator label="Current State" />
+
+                <pre
+                    class="text-sm bg-gray-50 p-4 rounded-lg overflow-auto">{{ JSON.stringify(userProfile, null, 2) }}</pre>
+
+                <USeparator />
+
+                <div class="flex gap-4">
+                    <UButton @click="resetToDefaults" variant="soft">
+                        Reset to Defaults
+                    </UButton>
+                    <UButton @click="setExampleProfile" color="primary">
+                        Set Example Profile
+                    </UButton>
+                </div>
+            </div>
+        </UCard>
+
+        <UCard>
+            <template #header>
+                <h3 class="font-semibold">Current URL</h3>
+            </template>
+            <code class="text-sm">{{ $router.currentRoute.value.fullPath }}</code>
+        </UCard>
+    </div>
+</template>

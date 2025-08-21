@@ -1,12 +1,25 @@
 <template>
     <div class="min-h-screen bg-gray-50">
-        <UContainer class="py-8">
-            <UCard class="mb-8">
+        <UContainer class="py-4 sm:py-8">
+            <UCard class="mb-4 sm:mb-8">
                 <template #header>
-                    <h1 class="text-2xl font-bold">Vue Route Query Playground</h1>
+                    <h1 class="text-xl sm:text-2xl font-bold">Vue Route Query Playground</h1>
                 </template>
-                <UBreadcrumb :links="breadcrumbLinks" class="mb-4" />
-                <UTabs :items="navItems" v-model="activeTab" />
+                <!-- Mobile breadcrumb is hidden on small screens -->
+                <div class="hidden sm:block">
+                    <UBreadcrumb :links="breadcrumbLinks" class="mb-4" />
+                </div>
+                <!-- Desktop tabs view -->
+                <div class="hidden sm:block">
+                    <UTabs :items="navItems" v-model="activeTab" />
+                </div>
+                <!-- Mobile dropdown/select navigation -->
+                <div class="sm:hidden mb-4">
+                    <USelect v-model="mobileActiveTab" value-key="value" :items="navItems.map((item, index) => ({
+                        label: item.label,
+                        value: index.toString()
+                    }))" placeholder="Navigate to..." class="w-full" />
+                </div>
             </UCard>
 
             <slot />
@@ -15,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -63,9 +77,21 @@ const breadcrumbLinks = computed(() => {
     return links
 })
 
-
+// For desktop tab view
 const activeTab = computed({
     get: () => navItems.findIndex(item => item.to === route.path).toString(),
     set: (value) => router.push(navItems[+value].to)
 })
+
+// For mobile dropdown/select
+const mobileActiveTab = computed({
+    get: () => navItems.findIndex(item => item.to === route.path).toString(),
+    set: (value) => router.push(navItems[+value].to)
+})
+
+// Update mobile view when route changes
+watch(() => route.path, () => {
+    // This keeps the mobile dropdown in sync with the URL
+    // (though the computed property should handle this too)
+}, { immediate: true })
 </script>
