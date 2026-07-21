@@ -1,7 +1,7 @@
 // useRouteQuery.ts
 import { type Ref, onUnmounted, ref, toRaw, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { z } from "zod";
+import { z } from "zod/v3";
 import { GlobalQueryManager } from "./queryManager";
 import type {
   GenericObject,

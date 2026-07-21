@@ -42,7 +42,9 @@
     "build": "unbuild",
     "dev": "unbuild --stub",
     "start": "esno src/index.ts",
-    "test": "vitest",
+    "test": "npm run test:zod3 && npm run test:zod4",
+    "test:zod3": "npm i --no-save --no-package-lock --legacy-peer-deps zod@^3.25.0 && vitest run",
+    "test:zod4": "npm i --no-save --no-package-lock --legacy-peer-deps zod@^4.0.0 && vitest run",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
@@ -51,7 +53,7 @@
   "peerDependencies": {
     "vue": "^3.0.0",
     "vue-router": "^4.0.0",
-    "zod": "^3.0.0"
+    "zod": "^3.25.0 || ^4.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -61,6 +63,6 @@
     "vitest": "^0.34.0",
     "vue": "3.5.13",
     "vue-router": "4.5.0",
-    "zod": "3.24.3"
+    "zod": "^4.0.0"
   }
 }
