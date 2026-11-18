@@ -1,6 +1,6 @@
 {
   "name": "@chronicstone/vue-route-query",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "Typed URL query state for Vue and vue-router: codecs, batched writes, grouped and dynamic keys",
   "keywords": [
     "query-params",
