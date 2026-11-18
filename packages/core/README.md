@@ -38,7 +38,7 @@ const table = useQueryStates({
 - **Batched.** Every write made in the same tick, across all components, becomes one navigation.
 - **Dynamic keys.** Filters a user builds at runtime get their own keys with `dynamicQueryState`.
 - **Any schema library for objects.** `schemaCodec` stores an object as JSON in one key, checked by Zod, Valibot, or ArkType through Standard Schema.
-- **Small.** About 7 kB gzipped. `vue` 3.3+ and `vue-router` 4 or 5 are the only peer dependencies.
+- **Small.** About 5 kB minified and gzipped. `vue` 3.3+ and `vue-router` 4 or 5 are the only peer dependencies.
 
 Coming from v1 (`useRouteQuery` with Zod)? See the [migration guide](https://vue-route-query.vercel.app/migration/v1-to-v2).
 

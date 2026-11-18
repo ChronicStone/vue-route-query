@@ -32,6 +32,10 @@ export default defineNuxtConfig({
       siteUrl,
     },
   },
+  site: {
+    url: siteUrl,
+    name: 'vue-route-query',
+  },
   alias: {},
   modules: [
     resolve('../../../node_modules/docus/modules/config.ts'),

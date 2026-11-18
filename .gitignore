@@ -17,3 +17,4 @@ build
 apps/docs/.data
 apps/docs/.nuxt
 apps/docs/.output
+.env*

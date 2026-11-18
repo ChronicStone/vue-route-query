@@ -24,7 +24,8 @@
   },
   "files": [
     "build",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "type": "module",
   "sideEffects": false,
