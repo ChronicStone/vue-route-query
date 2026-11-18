@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="250" height="48" viewBox="0 0 250 48" fill="none">
+  <g transform="translate(0 0) scale(0.5)">
+  <rect x="5" y="5" width="86" height="86" rx="21" fill="#FFFFFF" stroke="#E4E4E7" stroke-width="2"/>
+  <path d="M30 34c0-7.7 6.3-13 14-13s14 5.3 14 12.5c0 6-4 9-8.2 11.6-3.4 2.1-5.3 3.6-5.3 7.4v2.5" stroke="#059669" stroke-width="7.5" stroke-linecap="round" fill="none"/>
+  <circle cx="44.5" cy="70" r="4.6" fill="#059669"/>
+  <rect x="58" y="58" width="22" height="6" rx="3" fill="#09090B"/>
+  <rect x="58" y="70" width="22" height="6" rx="3" fill="#09090B"/>
+  </g>
+  <text x="58" y="32" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="21" font-weight="600" letter-spacing="-0.4" fill="#09090B">vue-route-<tspan fill="#059669">query</tspan></text>
+</svg>
