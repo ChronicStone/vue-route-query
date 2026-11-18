@@ -3,9 +3,9 @@
  *
  * - Each factory owns one URL format and its built-in rules (`min`, `max`, `int`, lengths...).
  * - `validate: (value) => boolean` adds a one-off rule.
- * - `schemaCodec(standardSchema)` is the only place a validation library enters: a whole
- *   object stored as JSON in one key. The Standard Schema import is type-only, so no
- *   validation library is part of the runtime.
+ * - `schemaCodec(standardSchema)` is the only place a validation library enters: a
+ *   structured value in one key, written as JSON or in a custom `format`. The Standard Schema
+ *   import is type-only, so no validation library is part of the runtime.
  */
 import type { StandardSchemaV1 } from '@standard-schema/spec'
 
@@ -19,7 +19,7 @@ import { isDev } from './env'
 /** Why a URL value was not used, or was only partly used. */
 export interface QueryIssue {
   /**
-   * - `format`: not a number, a date, a list member, or JSON.
+   * - `format`: not a number, a date, a list member, or JSON, or a custom parse threw.
    * - `option`: a built-in option rejected it (`min`, `int`, `maxLength`...).
    * - `validate`: the codec's `validate` returned `false`, or `schemaCodec`'s schema reported issues.
    * - `group`: a `useQueryStates` rule rejected it.
@@ -429,24 +429,46 @@ export function arrayCodec<T, const O extends ArrayOptions<T>>(
   )
 }
 
+/** JSON with object keys sorted, so equal values always write the same string. */
+function stableStringify(value: unknown): string {
+  return JSON.stringify(value, (_key, entry: unknown) =>
+    entry && typeof entry === 'object' && !Array.isArray(entry)
+      ? Object.fromEntries(Object.entries(entry).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+      : entry,
+  )
+}
+
+export interface SchemaCodecOptions<T> extends Omit<CodecOptions<T>, 'validate'> {
+  /**
+   * How the value is written in the URL. Defaults to JSON with sorted keys.
+   * `parse` turns the raw string into the schema's input, and the schema still checks it;
+   * `serialize` writes the value, or returns `null` to remove the key.
+   */
+  format?: {
+    parse: (raw: string) => unknown
+    serialize: (value: T) => string | null
+  }
+}
+
 /**
- * A whole object stored as JSON in one key, typed and checked by any Standard Schema
- * library (Zod, Valibot, ArkType...). The schema is the rule, so there is no `validate`.
- * Synchronous schemas only.
+ * A structured value in one key, typed and checked by any Standard Schema library (Zod,
+ * Valibot, ArkType...). The schema is the rule, so there is no `validate`. The URL format is
+ * JSON unless `format` says otherwise. Synchronous schemas only.
  */
 export function schemaCodec<
   S extends StandardSchemaV1,
-  const O extends Omit<CodecOptions<StandardSchemaV1.InferOutput<S>>, 'validate'>,
+  const O extends SchemaCodecOptions<StandardSchemaV1.InferOutput<S>>,
 >(schema: S, options?: O) {
   type T = StandardSchemaV1.InferOutput<S>
+  const format = options?.format
   return build<T, O>(
     {
       parse(raw) {
         let input: unknown
         try {
-          input = JSON.parse(raw)
-        } catch {
-          return reject('format', 'not valid JSON')
+          input = format ? format.parse(raw) : JSON.parse(raw)
+        } catch (error) {
+          return reject('format', format ? `threw: ${String(error)}` : 'not valid JSON')
         }
         const result = schema['~standard'].validate(input)
         if (result instanceof Promise) {
@@ -460,7 +482,7 @@ export function schemaCodec<
           ? reject('validate', result.issues[0]?.message ?? 'rejected by the schema')
           : ok(result.value as T)
       },
-      serialize: (value) => JSON.stringify(value),
+      serialize: (value) => (format ? format.serialize(value) : stableStringify(value)),
     },
     [],
     options,

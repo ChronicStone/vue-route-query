@@ -186,13 +186,54 @@ describe('schemaCodec', () => {
       direction: 'asc',
     })
     expect(sort.serialize({ key: 'name', direction: 'asc' })).toBe(
-      '{"key":"name","direction":"asc"}',
+      '{"direction":"asc","key":"name"}',
     )
   })
 
   it('rejects JSON the schema refuses, and text that is not JSON', () => {
     expect(reason(sort.parse('{"key":"name","direction":"up"}'))).toBe('validate')
     expect(reason(sort.parse('nope'))).toBe('format')
+  })
+
+  it('writes object keys in a stable order', () => {
+    expect(sort.serialize({ direction: 'asc', key: 'name' })).toBe(
+      sort.serialize({ key: 'name', direction: 'asc' }),
+    )
+  })
+
+  it('writes nested object keys in a stable order', () => {
+    const nested = schemaCodec(z.object({ a: z.object({ x: z.number(), y: z.number() }) }))
+    expect(nested.serialize({ a: { y: 2, x: 1 } })).toBe('{"a":{"x":1,"y":2}}')
+  })
+
+  describe('with a custom format', () => {
+    const compact = schemaCodec(z.object({ key: z.string(), direction: z.enum(['asc', 'desc']) }), {
+      format: {
+        parse: (raw) => {
+          const [key, direction] = raw.split(':')
+          return { key, direction }
+        },
+        serialize: ({ key, direction }) => `${key}:${direction}`,
+      },
+    })
+
+    it('reads and writes the custom format, still checked by the schema', () => {
+      expect(compact.serialize({ key: 'name', direction: 'asc' })).toBe('name:asc')
+      expect(value(compact.parse('name:asc'))).toStrictEqual({ key: 'name', direction: 'asc' })
+      expect(reason(compact.parse('name:up'))).toBe('validate')
+    })
+
+    it('turns a format.parse that throws into a rejection', () => {
+      const throwing = schemaCodec(z.string(), {
+        format: {
+          parse: () => {
+            throw new Error('boom')
+          },
+          serialize: (text) => text,
+        },
+      })
+      expect(reason(throwing.parse('x'))).toBe('format')
+    })
   })
 
   it('rejects an async schema instead of crashing', () => {

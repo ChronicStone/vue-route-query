@@ -18,6 +18,7 @@ export {
   type NumberOptions,
   type DateOptions,
   type ArrayOptions,
+  type SchemaCodecOptions,
 } from './codecs'
 export {
   QueryStateClient,

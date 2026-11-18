@@ -74,7 +74,7 @@ const sort = useQueryState(
     { default: { key: 'name', direction: 'asc' } },
   ),
 )
-// ?sort={"key":"date","direction":"desc"}`,
+// ?sort={"direction":"desc","key":"date"}`,
   },
 ]
 

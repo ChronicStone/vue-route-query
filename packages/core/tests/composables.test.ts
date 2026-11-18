@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
+import { z } from 'zod'
 
 import {
   QueryStateClient,
@@ -9,6 +10,7 @@ import {
   enumCodec,
   numberCodec,
   registerQueryStateClient,
+  schemaCodec,
   stringCodec,
   useQueryState,
   useQueryStateClient,
@@ -658,5 +660,60 @@ describe('review fixes', () => {
     state.value = { fields: { n: 3 } }
     await settle()
     expect(router.currentRoute.value.query).toStrictEqual({ 'f.n': '3' })
+  })
+})
+
+describe('schemaCodec', () => {
+  it('omits the default whatever the key order of the written object', async () => {
+    const { router, run, settle } = await createHarness('/?sort={"direction":"asc","key":"name"}')
+    const sort = run(() =>
+      useQueryState(
+        'sort',
+        schemaCodec(z.object({ key: z.string(), direction: z.enum(['asc', 'desc']) }), {
+          default: { key: 'createdAt', direction: 'desc' },
+        }),
+      ),
+    )
+
+    sort.value = { direction: 'desc', key: 'createdAt' }
+    await settle()
+
+    expect(router.currentRoute.value.query).toStrictEqual({})
+  })
+
+  const compactSort = (format?: 'null-on-name') =>
+    schemaCodec(z.object({ key: z.string(), direction: z.enum(['asc', 'desc']) }), {
+      default: { key: 'createdAt', direction: 'desc' },
+      format: {
+        parse: (raw) => {
+          const at = raw.lastIndexOf(':')
+          return { key: raw.slice(0, at), direction: raw.slice(at + 1) }
+        },
+        serialize: ({ key, direction }) =>
+          format === 'null-on-name' && key === 'name' ? null : `${key}:${direction}`,
+      },
+    })
+
+  it('writes a custom format and omits its default', async () => {
+    const { router, run, settle } = await createHarness('/')
+    const sort = run(() => useQueryState('sort', compactSort()))
+
+    sort.value = { key: 'a:b', direction: 'asc' }
+    await settle()
+    expect(router.currentRoute.value.query).toStrictEqual({ sort: 'a:b:asc' })
+    expect(sort.value).toStrictEqual({ key: 'a:b', direction: 'asc' })
+
+    sort.value = { key: 'createdAt', direction: 'desc' }
+    await settle()
+    expect(router.currentRoute.value.query).toStrictEqual({})
+  })
+
+  it('removes the key when the custom format writes null', async () => {
+    const { router, run, settle } = await createHarness('/?sort=title:asc')
+    const sort = run(() => useQueryState('sort', compactSort('null-on-name')))
+
+    sort.value = { key: 'name', direction: 'asc' }
+    await settle()
+    expect(router.currentRoute.value.query).toStrictEqual({})
   })
 })
