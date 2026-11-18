@@ -149,6 +149,9 @@ export default defineNuxtConfig({
   },
   experimental: {
     asyncContext: true,
+    // Nuxt 4.4 caches the home payload under the key "/", which unstorage rejects, so the
+    // landing page fails to prerender. Inline payloads avoid that cache (fixed in Nuxt 4.6).
+    payloadExtraction: false,
   },
   compatibilityDate: '2025-07-22',
   llms: {
@@ -191,7 +194,7 @@ export default defineNuxtConfig({
 
       nitroConfig.prerender ||= {}
       nitroConfig.prerender.routes ||= []
-      nitroConfig.prerender.routes.push(...routes, '/sitemap.xml')
+      nitroConfig.prerender.routes.push(...routes)
     },
   } as Record<string, (...args: any[]) => void>,
   icon: {

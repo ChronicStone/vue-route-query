@@ -1,38 +1,36 @@
-import { cpSync, existsSync, mkdirSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+// Writes sitemap.xml from the prerendered pages, so it never drifts from the content.
+import { readdirSync, statSync, writeFileSync } from 'node:fs'
+import { join, relative } from 'node:path'
 
-const outputDir = new URL('../.output/public/', import.meta.url)
-const fallbackFile = new URL('200.html', outputDir)
-const fallbackPath = fallbackFile.pathname
+const publicDir = new URL('../.output/public/', import.meta.url).pathname
+const siteUrl = (process.env.NUXT_PUBLIC_SITE_URL || 'https://vue-route-query.vercel.app').replace(
+  /\/$/,
+  '',
+)
 
-if (!existsSync(fallbackPath)) {
-  throw new Error(`Missing fallback file: ${fallbackPath}`)
+function htmlFiles(dir) {
+  return readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name)
+    if (statSync(path).isDirectory()) {
+      return name.startsWith('_') ? [] : htmlFiles(path)
+    }
+    return name.endsWith('.html') ? [path] : []
+  })
 }
 
-const routes = [
-  '/',
-  '/getting-started/introduction',
-  '/getting-started/installation',
-  '/schema-builder/create-schema',
-  '/schema-builder/columns',
-  '/schema-builder/dynamic-columns',
-  '/schema-builder/reusable-transformers',
-  '/schema-builder/reusable-formatters',
-  '/schema-builder/build-schema',
-  '/file-builder/create-file-builder',
-  '/file-builder/define-sheets',
-  '/file-builder/define-tables',
-  '/file-builder/build-excel-file',
-]
+const routes = htmlFiles(publicDir)
+  .map(
+    (file) =>
+      `/${relative(publicDir, file).replace(/(index)?\.html$/, '')}`.replace(/\/$/, '') || '/',
+  )
+  .filter((route) => !['/200', '/404'].includes(route))
+  .sort()
 
-for (const route of routes) {
-  const targetPath =
-    route === '/'
-      ? join(outputDir.pathname, 'index.html')
-      : join(outputDir.pathname, route.replace(/^\//, ''), 'index.html')
-
-  if (!existsSync(targetPath)) {
-    mkdirSync(dirname(targetPath), { recursive: true })
-    cpSync(fallbackPath, targetPath)
-  }
-}
+const urls = routes.map(
+  (route) => `  <url><loc>${siteUrl}${route === '/' ? '/' : route}</loc></url>`,
+)
+writeFileSync(
+  join(publicDir, 'sitemap.xml'),
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`,
+)
+console.log(`sitemap.xml: ${routes.length} pages`)
