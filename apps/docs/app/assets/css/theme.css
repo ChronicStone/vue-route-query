@@ -1,0 +1,78 @@
+/*
+ * vue-route-query visual identity: sharp corners, hairline grid, Geist + Geist Mono + Geist Pixel.
+ * Loaded after Docus' generated Tailwind/Nuxt UI sheet, so these variables win.
+ */
+:root {
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-pixel: 'Geist Pixel', 'Geist Mono', ui-monospace, monospace;
+  --ui-radius: 0px;
+  --ui-bg: #fafafa;
+  --ui-bg-elevated: #f3f3f3;
+  --ui-bg-muted: #f5f5f5;
+  --ui-border: #e6e6e6;
+  --ui-border-accented: #d4d4d4;
+  --vrq-panel: #ffffff;
+  --vrq-grid: rgb(0 0 0 / 0.045);
+  --vrq-warn: #c2410c;
+  --vrq-warn-bg: #fff1e8;
+  --vrq-code-bg: #0c0c0c;
+}
+
+.dark {
+  --ui-bg: #0a0a0a;
+  --ui-bg-elevated: #141414;
+  --ui-bg-muted: #111111;
+  --ui-border: #222222;
+  --ui-border-accented: #2e2e2e;
+  --vrq-panel: #111111;
+  --vrq-grid: rgb(255 255 255 / 0.035);
+  --vrq-warn: #fb923c;
+  --vrq-warn-bg: #2a1608;
+  --vrq-code-bg: #0f0f0f;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-pixel {
+  font-family: var(--font-pixel);
+  font-weight: 400;
+}
+
+.vrq-grid-bg {
+  background-image:
+    linear-gradient(var(--vrq-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--vrq-grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Docs page titles carry the pixel face; body copy stays in Geist. */
+.docus-page-title,
+main [data-slot='header'] h1 {
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Square everything that Nuxt UI or prose rounds with fixed utilities. */
+.prose pre,
+main pre,
+[data-slot='content'] pre {
+  border-radius: 0 !important;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--ui-primary) 28%, transparent);
+}
+
+/* Code scrolls sideways instead of wrapping mid-expression. */
+main pre.shiki {
+  white-space: pre !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}

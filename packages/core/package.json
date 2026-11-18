@@ -1,0 +1,62 @@
+{
+  "name": "@chronicstone/vue-route-query",
+  "version": "1.0.3",
+  "description": "Typed URL query state for Vue and vue-router: codecs, batched writes, grouped and dynamic keys",
+  "keywords": [
+    "query-params",
+    "query-state",
+    "query-string",
+    "search-params",
+    "typescript",
+    "url-state",
+    "vue",
+    "vue-router",
+    "vue3"
+  ],
+  "homepage": "https://vue-route-query.vercel.app/",
+  "bugs": "https://github.com/ChronicStone/vue-route-query/issues",
+  "license": "MIT",
+  "author": "ChronicStone <cthao.pro@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ChronicStone/vue-route-query",
+    "directory": "packages/core"
+  },
+  "files": [
+    "build",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js",
+      "default": "./build/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
+    "test": "vp test run",
+    "build": "vp pack",
+    "prepack": "vp pack",
+    "pack:check": "npm pack --dry-run",
+    "check": "tsc --noEmit -p tsconfig.typecheck.json && vp test run && vp pack && npm pack --dry-run"
+  },
+  "devDependencies": {
+    "@standard-schema/spec": "^1.1.0",
+    "vue": "^3.5.45",
+    "vue-router": "^5.5.1",
+    "zod": "4.3.6"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0",
+    "vue-router": "^4.0.0 || ^5.0.0"
+  }
+}

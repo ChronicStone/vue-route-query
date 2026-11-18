@@ -1,0 +1,7 @@
+{
+  "framework": null,
+  "buildCommand": "bun run docs:build",
+  "outputDirectory": "apps/docs/.output/public",
+  "installCommand": "bun install",
+  "cleanUrls": true
+}

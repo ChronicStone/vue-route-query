@@ -1,66 +1,40 @@
 {
-  "name": "@chronicstone/vue-route-query",
-  "version": "1.0.3",
-  "description": "Type-safe URL query parameter synchronization for Vue 3 with Zod validation",
-  "keywords": [
-    "vue",
-    "vue3",
-    "vue-router",
-    "query",
-    "url",
-    "zod",
-    "typescript",
-    "validation"
+  "name": "vue-route-query-workspace",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Workspace root for @chronicstone/vue-route-query and its documentation",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/yourusername/vue-route-query.git"
-  },
-  "license": "MIT",
-  "author": "Your Name",
-  "bugs": {
-    "url": "https://github.com/yourusername/vue-route-query/issues"
-  },
-  "homepage": "https://github.com/chronicstone/vue-route-query#readme",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    }
-  },
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "*": ["./dist/*", "./dist/index.d.ts"]
-    }
-  },
-  "files": ["dist"],
+  "type": "module",
   "scripts": {
-    "build": "unbuild",
-    "dev": "unbuild --stub",
-    "start": "esno src/index.ts",
-    "test": "vitest",
-    "typecheck": "tsc --noEmit",
-    "lint": "biome lint .",
-    "lint:fix": "biome lint --write .",
-    "release": "npm run lint && npm run typecheck && npm run build && bumpp && npm publish"
-  },
-  "peerDependencies": {
-    "vue": "^3.0.0",
-    "vue-router": "^4.0.0",
-    "zod": "^3.0.0"
+    "format": "vp fmt",
+    "format:check": "vp fmt --check",
+    "lint": "vp lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "build": "turbo run build",
+    "pack:check": "turbo run pack:check",
+    "check": "turbo run check",
+    "docs:dev": "turbo run dev --filter=vue-route-query-docs",
+    "docs:build": "turbo run build --filter=vue-route-query-docs",
+    "docs:generate": "turbo run generate --filter=vue-route-query-docs",
+    "docs:twoslash": "turbo run twoslash:verify --filter=vue-route-query-docs",
+    "docs:check": "turbo run check --filter=vue-route-query-docs && turbo run twoslash:verify --filter=vue-route-query-docs",
+    "ci": "turbo run check && turbo run twoslash:verify --filter=vue-route-query-docs",
+    "prepare": "vp config",
+    "changeset": "changeset",
+    "release:status": "changeset status --verbose",
+    "release:version": "changeset version && bun install",
+    "release:publish": "changeset publish"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "bumpp": "^10.1.0",
-    "typescript": "5.8.3",
-    "unbuild": "^3.5.0",
-    "vitest": "^0.34.0",
-    "vue": "3.5.13",
-    "vue-router": "4.5.0",
-    "zod": "3.24.3"
-  }
+    "@changesets/changelog-github": "^0.7.0",
+    "@changesets/cli": "^2.31.1",
+    "turbo": "2.5.8",
+    "typescript": "^6.0.3",
+    "vite-plus": "^1.7.0"
+  },
+  "packageManager": "bun@1.4.4"
 }

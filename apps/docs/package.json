@@ -1,0 +1,30 @@
+{
+  "name": "vue-route-query-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt prepare && nuxt dev",
+    "build": "nuxt prepare && nuxt build && node scripts/postbuild-static.mjs",
+    "generate": "nuxt prepare && nuxt generate && node scripts/postbuild-static.mjs",
+    "preview": "nuxt preview",
+    "typecheck": "nuxt prepare",
+    "twoslash:verify": "rm -rf .data/content .nuxt/content && nuxt-content-twoslash verify",
+    "check:content": "bun run twoslash:verify",
+    "check": "bun run typecheck"
+  },
+  "dependencies": {
+    "@barzhsieh/nuxt-content-mermaid": "2.2.3",
+    "@chronicstone/vue-route-query": "workspace:*",
+    "@iconify-json/pixelarticons": "^1.2.10",
+    "@shikijs/vitepress-twoslash": "4.6.0",
+    "@standard-schema/spec": "^1.1.0",
+    "better-sqlite3": "12.8.0",
+    "docus": "5.8.1",
+    "motion-v": "^2.2.0",
+    "nuxt": "4.4.2",
+    "nuxt-content-twoslash": "0.4.0",
+    "shiki": "4.6.0",
+    "vue-router": "^5.5.1",
+    "zod": "4.3.6"
+  }
+}
