@@ -2,7 +2,7 @@
 
 Typed URL query state for Vue and vue-router. Like `ref()`, but stored in the query string.
 
-**Documentation: https://vue-route-query.vercel.app**
+**Documentation: https://vue-route-query.chronicstone.dev**
 
 ```bash
 npm install @chronicstone/vue-route-query

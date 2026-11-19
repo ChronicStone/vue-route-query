@@ -2,7 +2,7 @@
 
 Typed URL query state for Vue and vue-router. Like `ref()`, but stored in the query string.
 
-**Documentation: https://vue-route-query.vercel.app**
+**Documentation: https://vue-route-query.chronicstone.dev**
 
 ```bash
 npm install @chronicstone/vue-route-query
@@ -40,7 +40,7 @@ const table = useQueryStates({
 - **Any schema library for objects.** `schemaCodec` stores an object as JSON in one key, checked by Zod, Valibot, or ArkType through Standard Schema.
 - **Small.** About 5 kB minified and gzipped. `vue` 3.3+ and `vue-router` 4 or 5 are the only peer dependencies.
 
-Coming from v1 (`useRouteQuery` with Zod)? See the [migration guide](https://vue-route-query.vercel.app/migration/v1-to-v2).
+Coming from v1 (`useRouteQuery` with Zod)? See the [migration guide](https://vue-route-query.chronicstone.dev/migration/v1-to-v2).
 
 ## License
 
